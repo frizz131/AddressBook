@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RepositoryLayer.AddressBookDbContext;
 using RepositoryLayer.Models;
+using RepositoryLayer.DTOs;
 
 namespace AddressBook.Controllers
 {
@@ -18,73 +19,101 @@ namespace AddressBook.Controllers
 
         // GET: api/addressbook
         [HttpGet]
-        public ActionResult<IEnumerable<Contact>> GetContacts()
+        public ActionResult<IEnumerable<AddressBookEntryDto>> GetAddressBookEntries()
         {
-            var contacts = _context.Contacts.ToList();
-            return Ok(contacts);
+            var entries = _context.Contacts.ToList();
+            var entryDtos = entries.Select(e => new AddressBookEntryDto
+            {
+                Id = e.Id,
+                Name = e.Name,
+                Email = e.Email,
+                Phone = e.Phone
+            }).ToList();
+            return Ok(entryDtos);
         }
 
         // GET: api/addressbook/{id}
         [HttpGet("{id}")]
-        public ActionResult<Contact> GetContact(int id)
+        public ActionResult<AddressBookEntryDto> GetAddressBookEntry(int id)
         {
-            var contact = _context.Contacts.Find(id);
-            if (contact == null)
+            var entry = _context.Contacts.Find(id);
+            if (entry == null)
             {
                 return NotFound();
             }
-            return Ok(contact);
+
+            var entryDto = new AddressBookEntryDto
+            {
+                Id = entry.Id,
+                Name = entry.Name,
+                Email = entry.Email,
+                Phone = entry.Phone
+            };
+            return Ok(entryDto);
         }
 
         // POST: api/addressbook
         [HttpPost]
-        public ActionResult<Contact> AddContact([FromBody] Contact contact)
+        public ActionResult<AddressBookEntryDto> AddAddressBookEntry([FromBody] AddressBookEntryDto entryDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            _context.Contacts.Add(contact);
+            var entry = new AddressBookEntry
+            {
+                Name = entryDto.Name,
+                Email = entryDto.Email,
+                Phone = entryDto.Phone
+            };
+
+            _context.Contacts.Add(entry);
             _context.SaveChanges();
 
-            return CreatedAtAction(nameof(GetContact), new { id = contact.Id }, contact);
+            entryDto.Id = entry.Id; // Update DTO with the generated ID
+            return CreatedAtAction(nameof(GetAddressBookEntry), new { id = entry.Id }, entryDto);
         }
 
         // PUT: api/addressbook/{id}
         [HttpPut("{id}")]
-        public ActionResult<Contact> UpdateContact(int id, [FromBody] Contact contact)
+        public ActionResult<AddressBookEntryDto> UpdateAddressBookEntry(int id, [FromBody] AddressBookEntryDto entryDto)
         {
-            if (id != contact.Id)
+            if (id != entryDto.Id)
             {
                 return BadRequest("ID in URL must match ID in body");
             }
 
-            var existingContact = _context.Contacts.Find(id);
-            if (existingContact == null)
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var existingEntry = _context.Contacts.Find(id);
+            if (existingEntry == null)
             {
                 return NotFound();
             }
 
-            existingContact.Name = contact.Name;
-            existingContact.Email = contact.Email;
-            existingContact.Phone = contact.Phone;
+            existingEntry.Name = entryDto.Name;
+            existingEntry.Email = entryDto.Email;
+            existingEntry.Phone = entryDto.Phone;
 
             _context.SaveChanges();
-            return Ok(existingContact);
+            return Ok(entryDto);
         }
 
         // DELETE: api/addressbook/{id}
         [HttpDelete("{id}")]
-        public ActionResult DeleteContact(int id)
+        public ActionResult DeleteAddressBookEntry(int id)
         {
-            var contact = _context.Contacts.Find(id);
-            if (contact == null)
+            var entry = _context.Contacts.Find(id);
+            if (entry == null)
             {
                 return NotFound();
             }
 
-            _context.Contacts.Remove(contact);
+            _context.Contacts.Remove(entry);
             _context.SaveChanges();
             return NoContent();
         }

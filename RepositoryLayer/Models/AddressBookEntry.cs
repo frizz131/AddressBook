@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RepositoryLayer.Models
 {
-    public class Contact
+    public class AddressBookEntry
     {
         public int Id { get; set; }
         public string Name { get; set; }
