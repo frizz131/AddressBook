@@ -1,7 +1,7 @@
 [
   {
     "ContainingType": "AddressBook.Controllers.AddressBookController",
-    "Method": "GetContacts",
+    "Method": "GetAddressBookEntries",
     "RelativePath": "api/AddressBook",
     "HttpMethod": "GET",
     "IsController": true,
@@ -9,7 +9,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[RepositoryLayer.Models.Contact, RepositoryLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[RepositoryLayer.DTOs.AddressBookEntryDto, RepositoryLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -21,21 +21,21 @@
   },
   {
     "ContainingType": "AddressBook.Controllers.AddressBookController",
-    "Method": "AddContact",
+    "Method": "AddAddressBookEntry",
     "RelativePath": "api/AddressBook",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "contact",
-        "Type": "RepositoryLayer.Models.Contact",
+        "Name": "entryDto",
+        "Type": "RepositoryLayer.DTOs.AddressBookEntryDto",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "RepositoryLayer.Models.Contact",
+        "Type": "RepositoryLayer.DTOs.AddressBookEntryDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -47,7 +47,7 @@
   },
   {
     "ContainingType": "AddressBook.Controllers.AddressBookController",
-    "Method": "GetContact",
+    "Method": "GetAddressBookEntry",
     "RelativePath": "api/AddressBook/{id}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -61,7 +61,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "RepositoryLayer.Models.Contact",
+        "Type": "RepositoryLayer.DTOs.AddressBookEntryDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -73,7 +73,7 @@
   },
   {
     "ContainingType": "AddressBook.Controllers.AddressBookController",
-    "Method": "UpdateContact",
+    "Method": "UpdateAddressBookEntry",
     "RelativePath": "api/AddressBook/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
@@ -85,14 +85,14 @@
         "IsRequired": true
       },
       {
-        "Name": "contact",
-        "Type": "RepositoryLayer.Models.Contact",
+        "Name": "entryDto",
+        "Type": "RepositoryLayer.DTOs.AddressBookEntryDto",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "RepositoryLayer.Models.Contact",
+        "Type": "RepositoryLayer.DTOs.AddressBookEntryDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -104,7 +104,7 @@
   },
   {
     "ContainingType": "AddressBook.Controllers.AddressBookController",
-    "Method": "DeleteContact",
+    "Method": "DeleteAddressBookEntry",
     "RelativePath": "api/AddressBook/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
