@@ -1,0 +1,12 @@
+[
+  {
+    "ContainingType": "AddressBook.Controllers.AddressBookController",
+    "Method": "GetContacts",
+    "RelativePath": "api/AddressBook",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]

@@ -1,0 +1,15 @@
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\bin\Debug\net6.0\BusinessLayer.deps.json
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\bin\Debug\net6.0\BusinessLayer.dll
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\bin\Debug\net6.0\BusinessLayer.pdb
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\bin\Debug\net6.0\RepositoryLayer.dll
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\bin\Debug\net6.0\RepositoryLayer.pdb
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\obj\Debug\net6.0\BusinessLayer.csproj.AssemblyReference.cache
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\obj\Debug\net6.0\BusinessLayer.GeneratedMSBuildEditorConfig.editorconfig
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\obj\Debug\net6.0\BusinessLayer.AssemblyInfoInputs.cache
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\obj\Debug\net6.0\BusinessLayer.AssemblyInfo.cs
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\obj\Debug\net6.0\BusinessLayer.csproj.CoreCompileInputs.cache
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\obj\Debug\net6.0\Business.EA331CBA.Up2Date
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\obj\Debug\net6.0\BusinessLayer.dll
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\obj\Debug\net6.0\refint\BusinessLayer.dll
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\obj\Debug\net6.0\BusinessLayer.pdb
+D:\Work\CSharp\AddressBook\AddressBook\BusinessLayer\obj\Debug\net6.0\ref\BusinessLayer.dll
