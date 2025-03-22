@@ -82,3 +82,4 @@ D:\Work\CSharp\AddressBook\AddressBook\AddressBook\obj\Debug\net6.0\refint\Addre
 D:\Work\CSharp\AddressBook\AddressBook\AddressBook\obj\Debug\net6.0\AddressBook.pdb
 D:\Work\CSharp\AddressBook\AddressBook\AddressBook\obj\Debug\net6.0\AddressBook.genruntimeconfig.cache
 D:\Work\CSharp\AddressBook\AddressBook\AddressBook\obj\Debug\net6.0\ref\AddressBook.dll
+D:\Work\CSharp\AddressBook\AddressBook\AddressBook\obj\Debug\net6.0\AddressBook.sourcelink.json
