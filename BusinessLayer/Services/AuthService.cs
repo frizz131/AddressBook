@@ -12,6 +12,8 @@ using System.Security.Cryptography;
 using System.Net.Mail;
 using Microsoft.EntityFrameworkCore.Storage;
 using StackExchange.Redis;
+using RabbitMQ.Client;
+using System.Text.Json;
 
 
 
@@ -22,12 +24,14 @@ namespace BusinessLayer.Service
         private readonly AddressBookRL _repository;
         private readonly IConfiguration _configuration;
         private readonly StackExchange.Redis.IDatabase _redis; // Explicitly specify StackExchange.Redis
+        private readonly IConnection _rabbitMQConnection;
 
-        public AuthService(AddressBookRL repository, IConfiguration configuration, IConnectionMultiplexer redis)
+        public AuthService(AddressBookRL repository, IConfiguration configuration, IConnectionMultiplexer redis, IConnection rabbitMQConnection)
         {
             _repository = repository;
             _configuration = configuration;
             _redis = redis.GetDatabase();
+            _rabbitMQConnection = rabbitMQConnection;
         }
 
         public async Task<string> Register(UserRegisterDto userDto)
@@ -52,6 +56,15 @@ namespace BusinessLayer.Service
 
             var token = await GenerateJwtToken(user);
             await _redis.StringSetAsync($"session:{user.Id}", token, TimeSpan.FromHours(1));
+
+            // Publish user registered event
+            using var channel = _rabbitMQConnection.CreateModel();
+            var exchange = _configuration["RabbitMQ:Exchange"];
+            channel.ExchangeDeclare(exchange, "direct", durable: true);
+            var message = JsonSerializer.Serialize(new { Email = user.Email });
+            var body = Encoding.UTF8.GetBytes(message);
+            channel.BasicPublish(exchange, "user.registered", null, body);
+
             return token;
         }
 

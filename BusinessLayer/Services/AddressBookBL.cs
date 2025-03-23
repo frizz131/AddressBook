@@ -5,6 +5,9 @@ using RepositoryLayer.Services;
 using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
+using RabbitMQ.Client;
+using Microsoft.Extensions.Configuration;
+using System.Text;
 
 namespace BusinessLayer.Service
 {
@@ -12,11 +15,15 @@ namespace BusinessLayer.Service
     {
         private readonly AddressBookRL _repository;
         private readonly StackExchange.Redis.IDatabase _redis; // Explicitly specify StackExchange.Redis
+        private readonly IConfiguration _configuration;
+        private readonly IConnection _rabbitMQConnection;
 
-        public AddressBookBL(AddressBookRL repository, IConnectionMultiplexer redis)
+        public AddressBookBL(AddressBookRL repository, IConnectionMultiplexer redis, IConfiguration configuration, IConnection rabbitMQConnection)
         {
             _repository = repository;
             _redis = redis.GetDatabase();
+            _configuration = configuration;
+            _rabbitMQConnection = rabbitMQConnection;
         }
 
         public IEnumerable<AddressBookEntryDto> GetAllEntries()
@@ -82,6 +89,15 @@ namespace BusinessLayer.Service
                 entryDto.Id = addressBookEntry.Id;
                 _redis.KeyDelete("addressbook:all");
                 _redis.StringSet($"addressbook:{entryDto.Id}", JsonSerializer.Serialize(entryDto), TimeSpan.FromMinutes(10));
+
+                // Publish contact added event
+                using var channel = _rabbitMQConnection.CreateModel();
+                var exchange = _configuration["RabbitMQ:Exchange"];
+                channel.ExchangeDeclare(exchange, "direct", durable: true);
+                var message = JsonSerializer.Serialize(new { Name = entryDto.Name, Email = entryDto.Email });
+                var body = Encoding.UTF8.GetBytes(message);
+                channel.BasicPublish(exchange, "contact.added", null, body);
+
                 return entryDto;
             }
             throw new InvalidOperationException("Failed to create AddressBookEntry");

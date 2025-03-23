@@ -90,3 +90,5 @@ D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\Microsoft.Bc
 D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\Microsoft.Bcl.TimeProvider.dll
 D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\Pipelines.Sockets.Unofficial.dll
 D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\StackExchange.Redis.dll
+D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\RabbitMQ.Client.dll
+D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\System.Threading.Channels.dll
