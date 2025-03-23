@@ -12,5 +12,7 @@ namespace RepositoryLayer.Models
         public string Username { get; set; }
         public string Email { get; set; }
         public string PasswordHash { get; set; } // Store hashed password
+        public string? ResetToken { get; set; } // New: Reset token
+        public DateTime? ResetTokenExpiry { get; set; } // New: Token expiry
     }
 }

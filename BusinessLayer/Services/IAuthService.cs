@@ -11,5 +11,7 @@ namespace BusinessLayer.Services
     {
         Task<string> Register(UserRegisterDto userDto);
         Task<string> Login(UserLoginDto userDto);
+        Task ForgotPassword(ForgotPasswordDto forgotPasswordDto);
+        Task ResetPassword(ResetPasswordDto resetPasswordDto);
     }
 }

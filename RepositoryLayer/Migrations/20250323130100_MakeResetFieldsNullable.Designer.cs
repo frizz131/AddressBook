@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RepositoryLayer.AddressBookDbContext;
 
@@ -11,9 +12,10 @@ using RepositoryLayer.AddressBookDbContext;
 namespace RepositoryLayer.Migrations
 {
     [DbContext(typeof(AddressBookContext))]
-    partial class AddressBookContextModelSnapshot : ModelSnapshot
+    [Migration("20250323130100_MakeResetFieldsNullable")]
+    partial class MakeResetFieldsNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

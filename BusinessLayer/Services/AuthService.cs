@@ -9,6 +9,7 @@ using BCrypt.Net;
 using BusinessLayer.Services;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
+using System.Net.Mail;
 
 namespace BusinessLayer.Service
 {
@@ -25,7 +26,6 @@ namespace BusinessLayer.Service
 
         public async Task<string> Register(UserRegisterDto userDto)
         {
-            // Check for existing username or email
             var existingUserByUsername = _repository.GetUserByUsername(userDto.Username);
             var existingUserByEmail = _repository.GetUserByEmail(userDto.Email);
             if (existingUserByUsername != null || existingUserByEmail != null)
@@ -33,7 +33,6 @@ namespace BusinessLayer.Service
                 throw new Exception("Username or email already exists");
             }
 
-            // Hash password with SHA256 (fallback)
             var passwordHash = HashPassword(userDto.Password);
 
             var user = new User
@@ -45,7 +44,7 @@ namespace BusinessLayer.Service
 
             _repository.AddEntry(user);
 
-            return await GenerateJwtToken(user);
+            return await GenerateJwtToken(user); // Single call
         }
 
         public async Task<string> Login(UserLoginDto userDto)
@@ -56,9 +55,44 @@ namespace BusinessLayer.Service
                 throw new Exception("Invalid username or password");
             }
 
-            return await GenerateJwtToken(user);
+            return await GenerateJwtToken(user); // Single call
         }
 
+        public async Task ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+        {
+            var user = _repository.GetUserByEmail(forgotPasswordDto.Email);
+            if (user == null)
+            {
+                return; // Silently fail
+            }
+
+            var resetToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+            user.ResetToken = resetToken;
+            user.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+
+            _repository.UpdateEntry(user);
+
+            await SendResetEmail(user.Email, resetToken);
+        }
+
+        public async Task ResetPassword(ResetPasswordDto resetPasswordDto)
+        {
+            var user = _repository.GetUserByEmail(resetPasswordDto.Email);
+            if (user == null || user.ResetToken != resetPasswordDto.Token || user.ResetTokenExpiry < DateTime.UtcNow)
+            {
+                throw new Exception("Invalid or expired reset token");
+            }
+
+            user.PasswordHash = HashPassword(resetPasswordDto.NewPassword);
+            user.ResetToken = null;
+            user.ResetTokenExpiry = null;
+
+            _repository.UpdateEntry(user);
+
+            await Task.CompletedTask;
+        }
+
+        // Single definition of GenerateJwtToken
         private Task<string> GenerateJwtToken(User user)
         {
             var claims = new[]
@@ -83,17 +117,41 @@ namespace BusinessLayer.Service
 
         private string HashPassword(string password)
         {
-            using (var sha256 = SHA256.Create())
-            {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return Convert.ToBase64String(hashedBytes);
-            }
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(password)); // Fallback
         }
 
         private bool VerifyPassword(string password, string storedHash)
         {
             var hash = HashPassword(password);
             return hash == storedHash;
+        }
+
+        private async Task SendResetEmail(string email, string token)
+        {
+            var smtpHost = _configuration["Smtp:Host"];
+            var smtpPort = int.Parse(_configuration["Smtp:Port"]);
+            var smtpUsername = _configuration["Smtp:Username"];
+            var smtpPassword = _configuration["Smtp:Password"];
+            var fromEmail = _configuration["Smtp:FromEmail"];
+
+            var resetLink = $"http://localhost:5000/api/auth/reset-password?email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(token)}";
+
+            using (var client = new SmtpClient(smtpHost, smtpPort))
+            {
+                client.EnableSsl = true;
+                client.Credentials = new System.Net.NetworkCredential(smtpUsername, smtpPassword);
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(fromEmail),
+                    Subject = "Password Reset Request",
+                    Body = $"Click the link to reset your password: <a href='{resetLink}'>{resetLink}</a>",
+                    IsBodyHtml = true
+                };
+                mailMessage.To.Add(email);
+
+                await client.SendMailAsync(mailMessage);
+            }
         }
     }
 }

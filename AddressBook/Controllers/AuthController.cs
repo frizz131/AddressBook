@@ -2,6 +2,7 @@
 using BusinessLayer.Service;
 using RepositoryLayer.DTOs;
 using BusinessLayer.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace AddressBook.Controllers
 {
@@ -16,7 +17,6 @@ namespace AddressBook.Controllers
             _authService = authService;
         }
 
-        // POST: api/auth/register
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterDto userDto)
         {
@@ -30,13 +30,17 @@ namespace AddressBook.Controllers
                 var token = await _authService.Register(userDto);
                 return Ok(new { Token = token });
             }
+            catch (DbUpdateException ex)
+            {
+                var innerMessage = ex.InnerException?.Message ?? ex.Message;
+                return BadRequest($"Registration failed: Database error - {innerMessage}");
+            }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest($"Registration failed: {ex.Message}");
             }
         }
 
-        // POST: api/auth/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto userDto)
         {
@@ -52,7 +56,45 @@ namespace AddressBook.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest($"Login failed: {ex.Message}");
+            }
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _authService.ForgotPassword(forgotPasswordDto);
+                return Ok("Password reset email sent if the email exists.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Forgot password failed: {ex.Message}");
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _authService.ResetPassword(resetPasswordDto);
+                return Ok("Password reset successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Reset password failed: {ex.Message}");
             }
         }
     }
