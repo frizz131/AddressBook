@@ -88,3 +88,5 @@ D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\Microsoft.As
 D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\Microsoft.Bcl.AsyncInterfaces.dll
 D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\Microsoft.Bcl.Memory.dll
 D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\Microsoft.Bcl.TimeProvider.dll
+D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\Pipelines.Sockets.Unofficial.dll
+D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\StackExchange.Redis.dll

@@ -2,45 +2,69 @@
 using RepositoryLayer.DTOs;
 using RepositoryLayer.Models;
 using RepositoryLayer.Services;
+using StackExchange.Redis;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
 
 namespace BusinessLayer.Service
 {
     public class AddressBookBL : IAddressBookBL
     {
         private readonly AddressBookRL _repository;
+        private readonly StackExchange.Redis.IDatabase _redis; // Explicitly specify StackExchange.Redis
 
-        public AddressBookBL(AddressBookRL repository)
+        public AddressBookBL(AddressBookRL repository, IConnectionMultiplexer redis)
         {
             _repository = repository;
+            _redis = redis.GetDatabase();
         }
 
         public IEnumerable<AddressBookEntryDto> GetAllEntries()
         {
-            var entries = _repository.GetAllEntries()
-                .OfType<AddressBookEntry>(); // Filter to AddressBookEntry only
-            return entries.Select(e => new AddressBookEntryDto
+            var cacheKey = "addressbook:all";
+            var cached = _redis.StringGet(cacheKey);
+            if (!cached.IsNullOrEmpty)
             {
-                Id = e.Id,
-                Name = e.Name,
-                Email = e.Email,
-                Phone = e.Phone
-            }).ToList();
+                return JsonSerializer.Deserialize<IEnumerable<AddressBookEntryDto>>(cached);
+            }
+
+            var entries = _repository.GetAllEntries()
+                .OfType<AddressBookEntry>()
+                .Select(e => new AddressBookEntryDto
+                {
+                    Id = e.Id,
+                    Name = e.Name,
+                    Email = e.Email,
+                    Phone = e.Phone
+                }).ToList();
+
+            _redis.StringSet(cacheKey, JsonSerializer.Serialize(entries), TimeSpan.FromMinutes(10)); // Fixed typo
+            return entries;
         }
 
         public AddressBookEntryDto GetEntryById(int id)
         {
+            var cacheKey = $"addressbook:{id}";
+            var cached = _redis.StringGet(cacheKey);
+            if (!cached.IsNullOrEmpty)
+            {
+                return JsonSerializer.Deserialize<AddressBookEntryDto>(cached);
+            }
+
             var entry = _repository.GetEntryById(id);
             if (entry is AddressBookEntry addressBookEntry)
             {
-                return new AddressBookEntryDto
+                var dto = new AddressBookEntryDto
                 {
                     Id = addressBookEntry.Id,
                     Name = addressBookEntry.Name,
                     Email = addressBookEntry.Email,
                     Phone = addressBookEntry.Phone
                 };
+                _redis.StringSet(cacheKey, JsonSerializer.Serialize(dto), TimeSpan.FromMinutes(10));
+                return dto;
             }
-            return null; // Return null if not an AddressBookEntry
+            return null;
         }
 
         public AddressBookEntryDto AddEntry(AddressBookEntryDto entryDto)
@@ -56,6 +80,8 @@ namespace BusinessLayer.Service
             if (createdEntry is AddressBookEntry addressBookEntry)
             {
                 entryDto.Id = addressBookEntry.Id;
+                _redis.KeyDelete("addressbook:all");
+                _redis.StringSet($"addressbook:{entryDto.Id}", JsonSerializer.Serialize(entryDto), TimeSpan.FromMinutes(10));
                 return entryDto;
             }
             throw new InvalidOperationException("Failed to create AddressBookEntry");
@@ -79,20 +105,25 @@ namespace BusinessLayer.Service
             var updatedEntry = _repository.UpdateEntry(entry);
             if (updatedEntry is AddressBookEntry addressBookEntry)
             {
-                return new AddressBookEntryDto
+                var dto = new AddressBookEntryDto
                 {
                     Id = addressBookEntry.Id,
                     Name = addressBookEntry.Name,
                     Email = addressBookEntry.Email,
                     Phone = addressBookEntry.Phone
                 };
+                _redis.KeyDelete("addressbook:all");
+                _redis.StringSet($"addressbook:{id}", JsonSerializer.Serialize(dto), TimeSpan.FromMinutes(10));
+                return dto;
             }
-            return null; // Return null if not found or not an AddressBookEntry
+            return null;
         }
 
         public void DeleteEntry(int id)
         {
             _repository.DeleteEntry(id);
+            _redis.KeyDelete("addressbook:all");
+            _redis.KeyDelete($"addressbook:{id}");
         }
     }
 }

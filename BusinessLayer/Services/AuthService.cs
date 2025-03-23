@@ -10,6 +10,10 @@ using BusinessLayer.Services;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 using System.Net.Mail;
+using Microsoft.EntityFrameworkCore.Storage;
+using StackExchange.Redis;
+
+
 
 namespace BusinessLayer.Service
 {
@@ -17,11 +21,13 @@ namespace BusinessLayer.Service
     {
         private readonly AddressBookRL _repository;
         private readonly IConfiguration _configuration;
+        private readonly StackExchange.Redis.IDatabase _redis; // Explicitly specify StackExchange.Redis
 
-        public AuthService(AddressBookRL repository, IConfiguration configuration)
+        public AuthService(AddressBookRL repository, IConfiguration configuration, IConnectionMultiplexer redis)
         {
             _repository = repository;
             _configuration = configuration;
+            _redis = redis.GetDatabase();
         }
 
         public async Task<string> Register(UserRegisterDto userDto)
@@ -44,7 +50,9 @@ namespace BusinessLayer.Service
 
             _repository.AddEntry(user);
 
-            return await GenerateJwtToken(user); // Single call
+            var token = await GenerateJwtToken(user);
+            await _redis.StringSetAsync($"session:{user.Id}", token, TimeSpan.FromHours(1));
+            return token;
         }
 
         public async Task<string> Login(UserLoginDto userDto)
@@ -55,7 +63,15 @@ namespace BusinessLayer.Service
                 throw new Exception("Invalid username or password");
             }
 
-            return await GenerateJwtToken(user); // Single call
+            var cachedToken = await _redis.StringGetAsync($"session:{user.Id}");
+            if (!cachedToken.IsNullOrEmpty)
+            {
+                return cachedToken;
+            }
+
+            var token = await GenerateJwtToken(user);
+            await _redis.StringSetAsync($"session:{user.Id}", token, TimeSpan.FromHours(1));
+            return token;
         }
 
         public async Task ForgotPassword(ForgotPasswordDto forgotPasswordDto)
@@ -63,7 +79,7 @@ namespace BusinessLayer.Service
             var user = _repository.GetUserByEmail(forgotPasswordDto.Email);
             if (user == null)
             {
-                return; // Silently fail
+                return;
             }
 
             var resetToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
@@ -71,7 +87,6 @@ namespace BusinessLayer.Service
             user.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
 
             _repository.UpdateEntry(user);
-
             await SendResetEmail(user.Email, resetToken);
         }
 
@@ -88,7 +103,7 @@ namespace BusinessLayer.Service
             user.ResetTokenExpiry = null;
 
             _repository.UpdateEntry(user);
-
+            await _redis.KeyDeleteAsync($"session:{user.Id}");
             await Task.CompletedTask;
         }
 
