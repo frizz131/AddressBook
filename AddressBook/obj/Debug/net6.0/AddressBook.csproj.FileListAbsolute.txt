@@ -83,3 +83,8 @@ D:\Work\CSharp\AddressBook\AddressBook\AddressBook\obj\Debug\net6.0\AddressBook.
 D:\Work\CSharp\AddressBook\AddressBook\AddressBook\obj\Debug\net6.0\AddressBook.genruntimeconfig.cache
 D:\Work\CSharp\AddressBook\AddressBook\AddressBook\obj\Debug\net6.0\ref\AddressBook.dll
 D:\Work\CSharp\AddressBook\AddressBook\AddressBook\obj\Debug\net6.0\AddressBook.sourcelink.json
+D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\BCrypt.Net-Next.dll
+D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\Microsoft.Bcl.AsyncInterfaces.dll
+D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\Microsoft.Bcl.Memory.dll
+D:\Work\CSharp\AddressBook\AddressBook\AddressBook\bin\Debug\net6.0\Microsoft.Bcl.TimeProvider.dll

@@ -13,6 +13,7 @@ namespace RepositoryLayer.AddressBookDbContext
         public AddressBookContext(DbContextOptions<AddressBookContext> options)
             : base(options) { }
 
-        public DbSet<AddressBookEntry> Contacts { get; set; }
+        public DbSet<AddressBookEntry> AddressBookEntries { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }
